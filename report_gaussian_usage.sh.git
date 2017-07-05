@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# Author: Summer Wang (xwang@osc.edu) 
+# Created: 07/05/17
+#
+# This script queries the jobs database to calculate the CPU hours for commercial jobs using Gaussian. 
+#
+# For more information on this cronjob see the sys doc page at https://wiki.osc.edu/index.php?title=Report_basf_gaussian_usage.sh
+#
+
+echo "Enter the fiscal year during which annual Gaussian usage report of commercial clients is generated, (yyyy). For example, fiscal year 2017 is between 2016-07-01 and 2017-6-30."
+read  fiscal_year
+re='^[0-9]+$'
+while [[ !($fiscal_year =~ $re) ]]  
+do
+ echo "Not a valid value. Enter the fiscal year."\
+      "For example, for fiscal year 2017, enter 2017 and press [ENTER]"
+ read fiscal_year
+done
+
+past_year=$(($fiscal_year - 1))
+
+mysql [database info]  --execute=" 
+SELECT '$past_year-07-02' AS startDate, '$fiscal_year-07-01' AS endDate;
+SELECT account, username, system, COUNT(jobid) AS jobs, 
+SUM(nproc*SEC_TO_TIME(walltime))/3600. AS cpuhours1 FROM Jobs WHERE ( 
+submit_date>='$past_year-07-02' AND submit_date<='$fiscal_year-07-01') AND ( 
+script LIKE '%module load gaussian%' or sw_app='gaussian' ) AND ( 
+account LIKE 'PYS%' or account LIKE 'PAN%' or account LIKE 'PAW%' or account = 'PAS1064' or account='PAS1194' or account='PND0005' or account='PZS0665' \
+or account='PZS0666' or account='PZS0579' or account='PZS0644') 
+GROUP BY account, username, system"  | 
+mail -s "Regular Reporting: Annual Gaussian Usage of Commercial Clients during fiscal year $fiscal_year" -S from="hhamblin@osc.edu" -c "alanc@osc.edu"  hhamblin@osc.edu 
