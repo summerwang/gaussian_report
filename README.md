@@ -2,6 +2,6 @@
 
 This script queries the jobs database to calculate the CPU hours for commercial jobs using Gaussian at OSC.
 
-How to access to database information has been removed for security purpose. 
+How to access to database information has been removed from the script for security purpose. 
 
 
