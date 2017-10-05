@@ -13,7 +13,7 @@ read  s_date
 echo "Enter the end date by which the report of Gaussian usage of commercial clients is generate (yyyy-mm-dd). For example, July 01, 2017 is 2017-7-1."
 read e_date
 
-mysql [database] --execute=" 
+mysql [database info] --execute=" 
 SELECT '$s_date' AS startDate, '$e_date' AS endDate;
 SELECT account, username, system, COUNT(jobid) AS jobs, 
 SUM(nproc*TIME_TO_SEC(walltime))/3600. AS cpuhours FROM Jobs WHERE ( 
